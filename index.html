@@ -1,48 +1,358 @@
-
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TB2 — Release Impact Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
-.tab{font-size:12px;padding:5px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;background:transparent;color:var(--color-text-secondary);font-family:inherit}
-.tab.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
-.chart-title{font-size:14px;font-weight:500;color:var(--color-text-primary);margin:0 0 2px}
-.chart-sub{font-size:11px;color:var(--color-text-secondary);margin:0 0 10px}
-.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:8px;font-size:11px;color:var(--color-text-secondary)}
-.li{display:flex;align-items:center;gap:5px}
-.ld{width:18px;height:2.5px;border-radius:2px}
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161e;
+    --bg3: #1a1e28;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.14);
+    --text: #e8eaf0;
+    --text-muted: #6b7080;
+    --text-dim: #3d4250;
+    --accent: #4f8ef7;
+    --accent2: #f76b4f;
+    --amber: #c9943a;
+    --amber-light: #f5c060;
+    --green: #3ecf8e;
+    --tag-bg: rgba(79,142,247,0.1);
+    --tag-border: rgba(79,142,247,0.25);
+    --mono: 'DM Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 40px 32px 64px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* — Header — */
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .header-left { flex: 1; min-width: 220px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+    opacity: 0.9;
+  }
+  h1 {
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: #fff;
+  }
+  h1 span { color: var(--accent); }
+  .updated {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  /* — KPI pills — */
+  .kpis {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .kpi {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-width: 110px;
+  }
+  .kpi-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .kpi-value {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+  .kpi-value.good { color: var(--green); }
+  .kpi-value.warn { color: var(--amber-light); }
+
+  /* — Release legend box — */
+  .release-box {
+    background: linear-gradient(135deg, rgba(201,148,58,0.08), rgba(201,148,58,0.03));
+    border: 1px solid rgba(201,148,58,0.2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px 24px;
+  }
+  .release-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .release-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--amber-light);
+    background: rgba(201,148,58,0.12);
+    border: 1px solid rgba(201,148,58,0.25);
+    border-radius: 4px;
+    padding: 2px 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .release-desc { color: var(--text-muted); line-height: 1.4; }
+
+  /* — Tabs — */
+  .tab-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .tab {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 13px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    letter-spacing: 0.01em;
+  }
+  .tab:hover { border-color: var(--border-hover); color: var(--text); }
+  .tab.active {
+    background: rgba(79,142,247,0.12);
+    border-color: rgba(79,142,247,0.35);
+    color: #a8c8ff;
+  }
+
+  /* — Chart cards — */
+  .charts-grid { display: flex; flex-direction: column; gap: 20px; }
+
+  .chart-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 24px 20px;
+    transition: border-color 0.2s;
+  }
+  .chart-card:hover { border-color: var(--border-hover); }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+  .card-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    letter-spacing: 0.03em;
+  }
+
+  .legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+  .legend-line {
+    width: 20px;
+    height: 2px;
+    border-radius: 2px;
+  }
+  .legend-dashed {
+    width: 16px;
+    height: 12px;
+    border: 1.5px dashed var(--amber);
+    border-radius: 3px;
+    opacity: 0.7;
+  }
+
+  .chart-wrap { position: relative; width: 100%; }
+
+  /* — Divider — */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 0 16px;
+  }
+
+  /* — Footer — */
+  .footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .footer-note {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  /* — Fade-in animation — */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .chart-card { animation: fadeUp 0.4s ease both; }
+  .chart-card:nth-child(2) { animation-delay: 0.08s; }
+  .header { animation: fadeUp 0.35s ease both; }
+  .release-box { animation: fadeUp 0.38s ease both; animation-delay: 0.05s; }
 </style>
+</head>
+<body>
 
-<h2 class="sr-only">TB2 Contact Rate und Not Turning On Rate – alle Regionen, W38 bis W22 (aktualisiert 01.06.2026)</h2>
-
-<div class="tabs" id="tabbar"></div>
-
-<div style="padding:0 0 6px">
-  <p class="chart-title">TB2s not turning on – Contact Rate</p>
-  <p class="chart-sub">= TB2s not turning on Weekly Contacts / Total Active TB2s Base</p>
-  <div class="legend">
-    <span class="li"><span class="ld" style="background:#378ADD"></span>Contact Rate</span>
-    <span class="li"><span class="ld" style="background:#D85A30"></span>Active TB2s</span>
-    <span class="li"><span style="width:14px;height:12px;border:1.5px dashed #B89A3E;display:inline-block;border-radius:2px"></span>Release</span>
+<div class="header">
+  <div class="header-left">
+    <div class="eyebrow">Product Quality · TB2 Launch Tracker</div>
+    <h1>Not Turning On<br><span>Release Impact</span></h1>
+    <div class="updated">LAST UPDATED: 01.06.2026 &nbsp;·&nbsp; W38 2024 – W22 2025</div>
   </div>
-  <div style="position:relative;width:100%;height:280px"><canvas id="c1" role="img" aria-label="Contact Rate und Active TB2s nach Region, W38 bis W22"></canvas></div>
+  <div class="kpis">
+    <div class="kpi">
+      <div class="kpi-label">W22 Contact Rate</div>
+      <div class="kpi-value good">0.15%</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Active TB2s</div>
+      <div class="kpi-value">883k</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Not On Rate</div>
+      <div class="kpi-value warn">4.4%</div>
+    </div>
+  </div>
 </div>
 
-<div style="padding:12px 0 6px">
-  <p class="chart-title">TB2s not turning on rate</p>
-  <p class="chart-sub">= Total TB2s not turning on / Total activated TB2s</p>
-  <div class="legend">
-    <span class="li"><span class="ld" style="background:#378ADD"></span>Not turning on rate</span>
-    <span class="li"><span style="width:14px;height:12px;border:1.5px dashed #B89A3E;display:inline-block;border-radius:2px"></span>Release</span>
+<div class="release-box">
+  <div class="release-item">
+    <span class="release-tag">R5 · 22.01</span>
+    <span class="release-desc">Shipment mode + battery fix</span>
   </div>
-  <div style="position:relative;width:100%;height:240px"><canvas id="c2" role="img" aria-label="Not turning on rate Global, W38 bis W22"></canvas></div>
+  <div class="release-item">
+    <span class="release-tag">R6 · 13.02</span>
+    <span class="release-desc">TB2 got stuck: Silent reboot</span>
+  </div>
+  <div class="release-item">
+    <span class="release-tag">R6.1 · 18.03</span>
+    <span class="release-desc">Fake sleep: proper shutdown</span>
+  </div>
+  <div class="release-item">
+    <span class="release-tag">R7 · 16.04</span>
+    <span class="release-desc">Improved download handling</span>
+  </div>
+</div>
+
+<div class="tab-row" id="tabbar"></div>
+
+<div class="charts-grid">
+
+  <div class="chart-card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Contact Rate &amp; Active Base</div>
+        <div class="card-sub">TB2s not turning on weekly contacts / total active TB2s</div>
+      </div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-line" style="background:#4f8ef7"></span>Contact Rate</span>
+        <span class="legend-item"><span class="legend-line" style="background:#f76b4f"></span>Active TB2s</span>
+        <span class="legend-item"><span class="legend-dashed"></span>Release</span>
+      </div>
+    </div>
+    <div class="chart-wrap" style="height:280px"><canvas id="c1"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Cumulative Not Turning On Rate</div>
+        <div class="card-sub">Total TB2s not turning on / total activated TB2s &nbsp;·&nbsp; Global only</div>
+      </div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-line" style="background:#4f8ef7"></span>Not turning on rate</span>
+        <span class="legend-item"><span class="legend-dashed"></span>Release</span>
+      </div>
+    </div>
+    <div class="chart-wrap" style="height:220px"><canvas id="c2"></canvas></div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span class="footer-note">SOURCE: After_Launch_Release_Plan.xlsx · Weekly Overview</span>
+  <span class="footer-note">ACTIVE TB2S BASE IS GLOBAL FOR ALL REGIONS</span>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 const WEEKS=['W38','W39','W40','W41','W42','W43','W44','W45','W46','W47','W48','W49','W50','W51','W52','W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12','W13','W14','W15','W16','W17','W18','W19','W20','W21','W22'];
-
 const ACTIVE=[25764,35007,46620,60100,74127,87252,98235,111580,125912,141966,165458,193187,217260,255502,866935,843294,819319,816003,818085,818372,814889,819425,829426,821621,815264,807897,824806,840692,863239,871930,866253,862101,862379,884060,898844,880335,883356];
-
 const NOT_ON=[0.001532,0.003877,0.006092,0.007934,0.009571,0.010913,0.012461,0.013,0.014,0.014,0.015,0.016,0.016,0.017,0.018,0.012,0.017,0.022,0.027,0.029,0.031,0.033,0.035,0.036,0.037,0.039,0.040,0.041,0.041,0.042,0.042,0.043,0.044,0.044,0.044,0.045,0.044];
-
 const CR={
   Global:[0.004852,0.004056,0.004311,0.004493,0.004425,0.004378,0.004510,0.004015,0.004487,0.004064,0.004593,0.004100,0.004962,0.007202,0.007250,0.009309,0.008852,0.008060,0.006318,0.004888,0.004644,0.004252,0.003971,0.003673,0.003477,0.003375,0.002816,0.002329,0.002250,0.002259,0.002058,0.001761,0.001644,0.001581,0.001652,0.001451,0.001456],
   DACH:  [0.04861,0.06169,0.07324,0.07426,0.06699,0.06381,0.07127,0.07433,0.07267,0.06886,0.06111,0.05282,0.05929,0.06647,0.02071,0.02831,0.16005,0.21119,0.21168,0.19696,0.19012,0.16894,0.15970,0.16470,0.15366,0.14912,0.13721,0.12011,0.09115,0.09064,0.12229,0.13068,0.11852,0.11401,0.12785,0.12486,0.10447],
@@ -53,15 +363,9 @@ const CR={
   EU:    [0.03746,0.04718,0.05476,0.04215,0.03560,0.03663,0.04372,0.04125,0.03875,0.04234,0.03893,0.02449,0.02764,0.04523,0.01599,0.02120,0.10263,0.14366,0.14952,0.13959,0.13362,0.18378,0.16582,0.11807,0.11396,0.09934,0.08427,0.08788,0.06108,0.04606,0.06528,0.08131,0.07444,0.07670,0.08219,0.07861,0.06680],
   CAN:   [0,0,0.003436,0.01000,0.006383,0.002000,0.004237,0.004367,0.002283,0.002212,0.005298,0.002944,0.003390,0.005542,0.002991,0.005225,0.025461,0.029505,0.031807,0.027285,0.028529,0.028125,0.017657,0.018809,0.016925,0.011142,0.009296,0.007051,0.004822,0.009212,0.016345,0.016100,0.012545,0.008787,0.011009,0.018282,0.027076]
 };
-
 const REGIONS=['Global','DACH','FR','US','UK','ANZ','EU','CAN'];
 const LABELS=['🌍 Global','🇩🇪 DACH','🇫🇷 FR','🇺🇸 US','🇬🇧 UK','🇦🇺 ANZ','🇪🇺 EU','🇨🇦 CAN'];
-const RELEASES=[
-  {w:'W52',label:['Release 5','22.01']},
-  {w:'W6', label:['Release 6','13.02']},
-  {w:'W11',label:['Release 6.1','18.03']},
-  {w:'W15',label:['Release 7','16.04']},
-];
+const RELEASES=[{w:'W52',label:['R5','22.01']},{w:'W6',label:['R6','13.02']},{w:'W11',label:['R6.1','18.03']},{w:'W15',label:['R7','16.04']}];
 
 const relPlugin={id:'relPlugin',afterDraw(chart,_,opts){
   if(!opts.releases)return;
@@ -69,46 +373,85 @@ const relPlugin={id:'relPlugin',afterDraw(chart,_,opts){
   opts.releases.forEach(r=>{
     const idx=WEEKS.indexOf(r.w);if(idx<0)return;
     const x=scales.x.getPixelForValue(idx);
-    ctx.save();ctx.beginPath();ctx.setLineDash([5,4]);ctx.strokeStyle='#B89A3E';ctx.lineWidth=1.5;
+    ctx.save();
+    ctx.beginPath();ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(201,148,58,0.5)';ctx.lineWidth=1;
     ctx.moveTo(x,chartArea.top);ctx.lineTo(x,chartArea.bottom);ctx.stroke();
-    ctx.setLineDash([]);ctx.fillStyle='#B89A3E';ctx.font='9.5px sans-serif';ctx.textAlign='center';
-    r.label.forEach((l,i)=>ctx.fillText(l,x,chartArea.top+12+i*11));
+    ctx.setLineDash([]);
+    ctx.font='bold 9px "DM Mono", monospace';ctx.fillStyle='rgba(245,192,96,0.8)';ctx.textAlign='center';
+    r.label.forEach((l,i)=>ctx.fillText(l,x,chartArea.top+11+i*11));
     ctx.restore();
   });
 }};
 Chart.register(relPlugin);
 
-const isDark=matchMedia('(prefers-color-scheme: dark)').matches;
-const gc=isDark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)';
-const tc=isDark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)';
+const gc='rgba(255,255,255,0.04)';
+const tc='rgba(255,255,255,0.3)';
+
+const baseOpts=(ytick,y2)=>({
+  responsive:true,maintainAspectRatio:false,
+  interaction:{mode:'index',intersect:false},
+  plugins:{
+    legend:{display:false},
+    tooltip:{
+      backgroundColor:'rgba(13,15,20,0.95)',
+      borderColor:'rgba(255,255,255,0.1)',
+      borderWidth:1,
+      titleColor:'rgba(255,255,255,0.5)',
+      bodyColor:'#e8eaf0',
+      titleFont:{family:'"DM Mono",monospace',size:10},
+      bodyFont:{family:'"DM Mono",monospace',size:11},
+      padding:10,
+      callbacks:{label(c){
+        if(c.dataset.yAxisID==='y')return` ${c.dataset.label}: ${c.parsed.y.toFixed(3)}%`;
+        return` ${c.dataset.label}: ${c.parsed.y.toLocaleString('de-DE')}`;
+      }}
+    },
+    relPlugin:{releases:RELEASES}
+  },
+  scales:{
+    x:{
+      ticks:{color:tc,font:{family:'"DM Mono",monospace',size:9},maxRotation:45,autoSkip:true,maxTicksLimit:19},
+      grid:{color:gc},
+      border:{color:'rgba(255,255,255,0.06)'}
+    },
+    y:{
+      position:'left',
+      ticks:{color:tc,font:{family:'"DM Mono",monospace',size:9},callback:ytick},
+      grid:{color:gc},
+      border:{color:'rgba(255,255,255,0.06)'}
+    },
+    ...(y2?{y2:{position:'right',ticks:{color:'rgba(247,107,79,0.6)',font:{family:'"DM Mono",monospace',size:9},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v},grid:{display:false},border:{display:false}}}:{})
+  }
+});
+
 let ch1=null,ch2=null;
 
-function build(region){
+function buildCharts(region){
   if(ch1)ch1.destroy();if(ch2)ch2.destroy();
   ch1=new Chart(document.getElementById('c1'),{type:'line',data:{labels:WEEKS,datasets:[
-    {label:'Contact Rate',data:CR[region].map(v=>+(v*100).toFixed(3)),borderColor:'#378ADD',backgroundColor:'transparent',pointRadius:2.5,pointBackgroundColor:'#378ADD',tension:0.2,yAxisID:'y'},
-    {label:'Active TB2s',data:ACTIVE,borderColor:'#D85A30',backgroundColor:'transparent',pointRadius:2.5,pointBackgroundColor:'#D85A30',tension:0.2,yAxisID:'y2'}
-  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-    plugins:{legend:{display:false},tooltip:{callbacks:{label(c){if(c.dataset.yAxisID==='y')return` Contact Rate: ${c.parsed.y.toFixed(3)}%`;return` Active TB2s: ${c.parsed.y.toLocaleString('de-DE')}`;}}},relPlugin:{releases:RELEASES}},
-    scales:{x:{ticks:{color:tc,font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:19},grid:{color:gc}},
-      y:{position:'left',ticks:{color:tc,font:{size:10},callback:v=>v.toFixed(2)+'%'},grid:{color:gc}},
-      y2:{position:'right',ticks:{color:'#D85A30',font:{size:10},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v},grid:{display:false}}}
-  }});
+    {label:'Contact Rate',data:CR[region].map(v=>+(v*100).toFixed(3)),
+     borderColor:'#4f8ef7',backgroundColor:'rgba(79,142,247,0.05)',
+     fill:true,pointRadius:2,pointBackgroundColor:'#4f8ef7',tension:0.3,yAxisID:'y',borderWidth:2},
+    {label:'Active TB2s',data:ACTIVE,
+     borderColor:'#f76b4f',backgroundColor:'transparent',
+     pointRadius:2,pointBackgroundColor:'#f76b4f',tension:0.3,yAxisID:'y2',borderWidth:1.5,borderDash:[]}
+  ]},options:{...baseOpts(v=>v.toFixed(2)+'%',true)}});
+
   ch2=new Chart(document.getElementById('c2'),{type:'line',data:{labels:WEEKS,datasets:[
-    {label:'Not turning on rate',data:NOT_ON.map(v=>+(v*100).toFixed(2)),borderColor:'#378ADD',backgroundColor:'transparent',pointRadius:2.5,pointBackgroundColor:'#378ADD',tension:0.2}
-  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-    plugins:{legend:{display:false},tooltip:{callbacks:{label(c){return` Not turning on rate: ${c.parsed.y.toFixed(2)}%`;}}},relPlugin:{releases:RELEASES}},
-    scales:{x:{ticks:{color:tc,font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:19},grid:{color:gc}},
-      y:{min:0,max:5,ticks:{color:tc,font:{size:10},callback:v=>v.toFixed(1)+'%'},grid:{color:gc}}}
-  }});
+    {label:'Not turning on rate',data:NOT_ON.map(v=>+(v*100).toFixed(2)),
+     borderColor:'#4f8ef7',backgroundColor:'rgba(79,142,247,0.06)',
+     fill:true,pointRadius:2,pointBackgroundColor:'#4f8ef7',tension:0.3,borderWidth:2}
+  ]},options:{...baseOpts(v=>v.toFixed(1)+'%',false),scales:{...baseOpts(v=>v.toFixed(1)+'%',false).scales,y:{...baseOpts(v=>v.toFixed(1)+'%',false).scales.y,min:0,max:5}}}});
 }
 
 const tb=document.getElementById('tabbar');
 LABELS.forEach((l,i)=>{
   const b=document.createElement('button');
   b.className='tab'+(i===0?' active':'');b.textContent=l;
-  b.onclick=()=>{document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));build(REGIONS[i]);};
+  b.onclick=()=>{document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));buildCharts(REGIONS[i]);};
   tb.appendChild(b);
 });
-build('Global');
+buildCharts('Global');
 </script>
+</body>
+</html>
