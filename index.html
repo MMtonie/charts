@@ -1,146 +1,179 @@
-
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TB2 — Release Impact Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
-*{box-sizing:border-box;margin:0;padding:0}
-.wrap{background:#0d0f14;color:#e8eaf0;padding:24px 22px 32px;border-radius:14px;font-family:'Inter',sans-serif;font-size:13px}
-.eyebrow{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:#5a85d4;margin-bottom:6px;opacity:.85}
-h1{font-size:20px;font-weight:600;letter-spacing:-.015em;color:#d8dce8;line-height:1.2;margin-bottom:4px}
-h1 span{color:#7aa4f0}
-.updated{font-family:'DM Mono',monospace;font-size:9px;color:#4a5060;letter-spacing:.05em;margin-top:4px}
-.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.06);gap:20px;flex-wrap:wrap}
-.kpis{display:flex;gap:7px;flex-wrap:wrap;align-items:flex-start}
-.kpi{background:#111418;border:1px solid rgba(255,255,255,.06);border-radius:9px;padding:9px 13px;min-width:100px}
-.kpi-label{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.09em;text-transform:uppercase;color:#4a5060;margin-bottom:3px}
-.kpi-value{font-size:18px;font-weight:600;letter-spacing:-.02em;color:#c8ccd8}
-.kpi-value.good{color:#3ab87a}.kpi-value.warn{color:#c9a84c}.kpi-value.up{color:#6699ee}
-.rel-box{background:rgba(180,140,50,.05);border:1px solid rgba(180,140,50,.15);border-radius:10px;padding:11px 15px;margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:6px 20px}
-.rel-item{display:flex;align-items:baseline;gap:7px}
-.rel-tag{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;color:#c9a84c;background:rgba(180,140,50,.1);border:1px solid rgba(180,140,50,.2);border-radius:4px;padding:2px 5px;white-space:nowrap;flex-shrink:0}
-.rel-desc{color:#4a5060;font-size:11px;line-height:1.4}
-.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:16px}
-.tab{font-family:'Inter',sans-serif;font-size:11.5px;font-weight:500;padding:5px 11px;border:1px solid rgba(255,255,255,.07);border-radius:7px;cursor:pointer;background:transparent;color:#4a5060;transition:all .13s ease;letter-spacing:.01em}
-.tab:hover{border-color:rgba(255,255,255,.12);color:#9aa0b0}
-.tab.active{background:rgba(70,120,220,.1);border-color:rgba(70,120,220,.28);color:#8ab0e8}
-.card{background:#111418;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px 18px 14px;margin-bottom:14px}
-.card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap}
-.card-title{font-size:12.5px;font-weight:600;color:#b0b8cc;letter-spacing:-.005em}
-.card-sub{font-family:'DM Mono',monospace;font-size:8.5px;color:#3a4050;margin-top:3px;letter-spacing:.03em}
-.legend{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-.li{display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:8.5px;color:#3a4050;letter-spacing:.04em}
-.ld{width:16px;height:2px;border-radius:2px}
-.lr{width:12px;height:10px;border:1px dashed rgba(180,140,50,.5);border-radius:2px}
-.footer{margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
-.fn{font-family:'DM Mono',monospace;font-size:8.5px;color:#2a2f38;letter-spacing:.04em}
+  :root{
+    --bg:#0d0f14;--bg2:#10131a;--bg3:#13161e;
+    --b:rgba(255,255,255,.05);--bh:rgba(255,255,255,.09);
+    --text:#8a9ab0;--muted:#3a4252;--dim:#1e2530;
+    --accent:#3d6aaa;--red:rgba(160,80,50,.45);
+    --ab:rgba(120,90,30,.14);--at:#8a7040;
+    --green:#2e9966;--warn:#8a6e30;
+    --mono:'DM Mono',monospace;--sans:'Inter',sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:12px;line-height:1.5;min-height:100vh;padding:36px 32px 56px;max-width:960px;margin:0 auto}
+  .eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#3d5a8a;margin-bottom:5px}
+  h1{font-size:clamp(16px,2.5vw,20px);font-weight:500;letter-spacing:-.01em;line-height:1.2;color:#9aa8bc}
+  h1 span{color:#5a80b8}
+  .updated{font-family:var(--mono);font-size:8.5px;color:#3a4252;margin-top:4px;letter-spacing:.05em}
+  .header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--b);gap:16px;flex-wrap:wrap}
+  .kpis{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}
+  .kpi{background:var(--bg3);border:1px solid var(--b);border-radius:8px;padding:8px 12px;min-width:96px}
+  .kpi-label{font-family:var(--mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+  .kpi-value{font-size:16px;font-weight:500;letter-spacing:-.015em;color:#7a8898}
+  .kpi-value.good{color:var(--green)}.kpi-value.warn{color:var(--warn)}.kpi-value.neg{color:#6a5840}
+  .rel-box{background:rgba(120,90,30,.06);border:1px solid var(--ab);border-radius:9px;padding:10px 14px;margin-bottom:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:5px 18px}
+  .rel-item{display:flex;align-items:baseline;gap:6px}
+  .rel-tag{font-family:var(--mono);font-size:8.5px;color:var(--at);background:rgba(120,90,30,.1);border:1px solid var(--ab);border-radius:3px;padding:1px 5px;white-space:nowrap;flex-shrink:0}
+  .rel-desc{color:var(--muted);font-size:10.5px;line-height:1.4}
+  .tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px}
+  .tab{font-family:var(--sans);font-size:11px;font-weight:400;padding:4px 10px;border:1px solid var(--b);border-radius:6px;cursor:pointer;background:transparent;color:var(--muted);transition:all .12s ease}
+  .tab:hover{border-color:var(--bh);color:#6a7888}
+  .tab.active{background:rgba(50,90,160,.09);border-color:rgba(50,90,160,.22);color:#5a80b0}
+  .card{background:var(--bg2);border:1px solid var(--b);border-radius:11px;padding:16px 16px 12px;margin-bottom:12px;transition:border-color .18s}
+  .card:hover{border-color:var(--bh)}
+  .card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap}
+  .card-title{font-size:11.5px;font-weight:500;color:#7a8898}
+  .card-sub{font-family:var(--mono);font-size:8px;color:#2e3542;margin-top:2px;letter-spacing:.03em}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .li{display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:8px;color:#2e3542;letter-spacing:.04em}
+  .ld{width:14px;height:1.5px;border-radius:2px}
+  .lr{width:11px;height:9px;border:1px dashed rgba(120,90,30,.35);border-radius:2px}
+  .chart-wrap{position:relative;width:100%}
+  .footer{margin-top:22px;padding-top:12px;border-top:1px solid rgba(255,255,255,.04);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}
+  .fn{font-family:var(--mono);font-size:8px;color:var(--dim);letter-spacing:.04em}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .header{animation:fadeUp .28s ease both}
+  .rel-box{animation:fadeUp .30s ease both;animation-delay:.03s}
+  .card{animation:fadeUp .32s ease both}
+  .card:nth-child(2){animation-delay:.05s}
 </style>
-<div class="wrap">
-  <div class="header">
-    <div>
-      <div class="eyebrow">Product Quality · TB2 Launch Tracker</div>
-      <h1>Not Turning On – <span>Release Impact</span></h1>
-      <div class="updated">LAST UPDATED: 01.06.2026 &nbsp;·&nbsp; W38 2024 – W24 2025</div>
-    </div>
-    <div class="kpis">
-      <div class="kpi"><div class="kpi-label">W24 Contact Rate</div><div class="kpi-value good">0.16%</div></div>
-      <div class="kpi"><div class="kpi-label">Active TB2s</div><div class="kpi-value">910k</div></div>
-      <div class="kpi"><div class="kpi-label">Not On Rate</div><div class="kpi-value warn">4.4%</div></div>
-      <div class="kpi"><div class="kpi-label">WoW Contacts</div><div class="kpi-value up">+25.9%</div></div>
-    </div>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="eyebrow">Product Quality · TB2 Launch Tracker</div>
+    <h1>Not Turning On – <span>Release Impact</span></h1>
+    <div class="updated">LAST UPDATED: 22.06.2026 · W38 2024 – W25 2025</div>
   </div>
-  <div class="rel-box">
-    <div class="rel-item"><span class="rel-tag">R5 · 22.01</span><span class="rel-desc">Shipment mode + battery fix</span></div>
-    <div class="rel-item"><span class="rel-tag">R6 · 13.02</span><span class="rel-desc">TB2 got stuck: Silent reboot</span></div>
-    <div class="rel-item"><span class="rel-tag">R6.1 · 18.03</span><span class="rel-desc">Fake sleep: proper shutdown</span></div>
-    <div class="rel-item"><span class="rel-tag">R7 · 16.04</span><span class="rel-desc">Improved download handling</span></div>
-  </div>
-  <div class="tabs" id="tb"></div>
-  <div class="card">
-    <div class="card-header">
-      <div><div class="card-title">Contact Rate &amp; Active Base</div><div class="card-sub">TB2s not turning on weekly contacts / total active TB2s</div></div>
-      <div class="legend">
-        <span class="li"><span class="ld" style="background:#4f7ed4"></span>Contact Rate</span>
-        <span class="li"><span class="ld" style="background:#c06040;opacity:.7"></span>Active TB2s</span>
-        <span class="li"><span class="lr"></span>Release</span>
-      </div>
-    </div>
-    <div style="position:relative;width:100%;height:260px"><canvas id="c1"></canvas></div>
-  </div>
-  <div class="card">
-    <div class="card-header">
-      <div><div class="card-title">Cumulative Not Turning On Rate</div><div class="card-sub">Total TB2s not turning on / total activated TB2s · Global only</div></div>
-      <div class="legend">
-        <span class="li"><span class="ld" style="background:#4f7ed4"></span>Not turning on rate</span>
-        <span class="li"><span class="lr"></span>Release</span>
-      </div>
-    </div>
-    <div style="position:relative;width:100%;height:200px"><canvas id="c2"></canvas></div>
-  </div>
-  <div class="footer">
-    <span class="fn">SOURCE: After_Launch_Release_Plan.xlsx · Weekly Overview</span>
-    <span class="fn">ACTIVE TB2S BASE IS GLOBAL FOR ALL REGIONS</span>
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-label">W25 Contact Rate</div><div class="kpi-value good">0.18%</div></div>
+    <div class="kpi"><div class="kpi-label">Active TB2s</div><div class="kpi-value">902k</div></div>
+    <div class="kpi"><div class="kpi-label">Not On Rate</div><div class="kpi-value warn">4.4%</div></div>
+    <div class="kpi"><div class="kpi-label">WoW Contacts</div><div class="kpi-value neg">−7.8%</div></div>
   </div>
 </div>
+
+<div class="rel-box">
+  <div class="rel-item"><span class="rel-tag">R5 · 22.01</span><span class="rel-desc">Shipment mode + battery fix</span></div>
+  <div class="rel-item"><span class="rel-tag">R6 · 13.02</span><span class="rel-desc">TB2 got stuck: Silent reboot</span></div>
+  <div class="rel-item"><span class="rel-tag">R6.1 · 18.03</span><span class="rel-desc">Fake sleep: proper shutdown</span></div>
+  <div class="rel-item"><span class="rel-tag">R7 · 16.04</span><span class="rel-desc">Improved download handling</span></div>
+</div>
+
+<div class="tabs" id="tabbar"></div>
+
+<div class="card">
+  <div class="card-header">
+    <div><div class="card-title">Contact Rate &amp; Active Base</div><div class="card-sub">TB2s not turning on weekly contacts / total active TB2s</div></div>
+    <div class="legend">
+      <span class="li"><span class="ld" style="background:#3d6aaa"></span>Contact Rate</span>
+      <span class="li"><span class="ld" style="background:rgba(160,80,50,.45)"></span>Active TB2s</span>
+      <span class="li"><span class="lr"></span>Release</span>
+    </div>
+  </div>
+  <div class="chart-wrap" style="height:300px"><canvas id="c1"></canvas></div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div><div class="card-title">Cumulative Not Turning On Rate</div><div class="card-sub">Total TB2s not turning on / total activated TB2s · Global only</div></div>
+    <div class="legend">
+      <span class="li"><span class="ld" style="background:#3d6aaa"></span>Not turning on rate</span>
+      <span class="li"><span class="lr"></span>Release</span>
+    </div>
+  </div>
+  <div class="chart-wrap" style="height:230px"><canvas id="c2"></canvas></div>
+</div>
+
+<div class="footer">
+  <span class="fn">SOURCE: After_Launch_Release_Plan.xlsx · Weekly Overview</span>
+  <span class="fn">ACTIVE TB2S BASE IS GLOBAL FOR ALL REGIONS</span>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const W=['W38','W39','W40','W41','W42','W43','W44','W45','W46','W47','W48','W49','W50','W51','W52','W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12','W13','W14','W15','W16','W17','W18','W19','W20','W21','W22','W23','W24'];
-const ACT=[25764,35007,46620,60100,74127,87252,98235,111580,125912,141966,165458,193187,217260,255502,866935,843294,819319,816003,818085,818372,814889,819425,829426,821621,815264,807897,824806,840692,863239,871930,866253,862101,862379,884060,898844,880335,883356,903382,910287];
-const NON=[0.2,0.4,0.6,0.8,1.0,1.1,1.2,1.3,1.4,1.4,1.5,1.6,1.6,1.7,1.8,1.2,1.7,2.2,2.7,2.9,3.1,3.3,3.5,3.6,3.7,3.9,4.0,4.1,4.1,4.2,4.2,4.3,4.4,4.4,4.4,4.5,4.4,4.4,4.4];
+const W=['W38','W39','W40','W41','W42','W43','W44','W45','W46','W47','W48','W49','W50','W51','W52','W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12','W13','W14','W15','W16','W17','W18','W19','W20','W21','W22','W23','W24','W25'];
+const ACT=[25764,35007,46620,60100,74127,87252,98235,111580,125912,141966,165458,193187,217260,255502,866935,843294,819319,816003,818085,818372,814889,819425,829426,821621,815264,807897,824806,840692,863239,871930,866253,862101,862379,884060,898844,880335,883356,903382,910287,902179];
+const NON=[0.2,0.4,0.6,0.8,1.0,1.1,1.2,1.3,1.4,1.4,1.5,1.6,1.6,1.7,1.8,1.2,1.7,2.2,2.7,2.9,3.1,3.3,3.5,3.6,3.7,3.9,4.0,4.1,4.1,4.2,4.2,4.3,4.4,4.4,4.4,4.5,4.4,4.4,4.4,4.4];
 const CR={
-  Global:[0.49,0.41,0.43,0.45,0.44,0.44,0.45,0.40,0.45,0.41,0.46,0.41,0.50,0.72,0.72,0.93,0.89,0.81,0.63,0.49,0.46,0.43,0.40,0.37,0.35,0.34,0.28,0.23,0.22,0.23,0.21,0.18,0.16,0.16,0.17,0.15,0.15,0.16,0.16],
-  DACH:  [4.86,6.17,7.32,7.43,6.70,6.38,7.13,7.43,7.27,6.89,6.11,5.28,5.93,6.65,2.07,2.83,16.0,21.1,21.2,19.7,19.0,16.9,16.0,16.5,15.4,14.9,13.7,12.0,9.11,9.06,12.2,13.1,11.9,11.4,12.8,12.5,10.5,11.0,13.4],
-  FR:    [5.16,5.30,6.12,5.41,5.65,6.42,6.58,6.73,7.10,7.02,5.71,5.20,5.03,5.52,2.88,4.74,29.8,44.9,40.0,33.9,30.6,29.4,27.5,25.2,25.5,25.7,20.3,19.2,20.4,18.2,19.7,21.2,19.8,19.0,17.8,17.0,15.3,14.9,18.2],
-  US:    [48.1,54.9,10.7,8.16,8.42,7.29,6.40,6.38,6.26,6.70,5.71,4.97,4.91,4.40,2.21,3.59,18.6,29.8,32.0,30.7,29.7,27.5,25.8,25.4,24.7,24.9,22.4,16.5,11.5,12.6,16.2,14.6,14.0,14.4,14.6,15.0,14.8,14.1,14.9],
-  UK:    [8.78,8.19,7.11,6.09,5.27,5.34,5.56,5.35,6.24,6.44,4.92,4.00,3.16,2.74,1.38,2.37,14.5,25.2,26.1,21.6,19.3,20.7,21.2,19.8,19.4,19.3,18.5,17.5,14.6,13.4,15.0,14.9,13.3,13.0,13.5,13.2,11.9,12.8,15.2],
-  ANZ:   [4.82,4.66,4.09,4.09,5.38,6.65,7.07,6.60,6.75,7.27,7.32,7.24,5.65,4.27,2.58,4.34,24.7,32.9,30.9,24.8,23.8,24.0,22.0,19.9,20.9,20.9,16.5,13.8,12.1,11.9,12.8,10.8,8.76,8.16,8.99,9.53,9.67,8.70,9.30],
-  EU:    [3.75,4.72,5.48,4.22,3.56,3.66,4.37,4.13,3.88,4.23,3.89,2.45,2.76,4.52,1.60,2.12,10.3,14.4,15.0,14.0,13.4,18.4,16.6,11.8,11.4,9.93,8.43,8.79,6.11,4.61,6.53,8.13,7.44,7.67,8.22,7.86,6.68,7.10,8.60],
-  CAN:   [0,0,0.34,1.00,0.64,0.20,0.42,0.44,0.23,0.22,0.53,0.29,0.34,0.55,0.30,0.52,2.55,2.95,3.18,2.73,2.85,2.81,1.77,1.88,1.69,1.11,0.93,0.71,0.48,0.92,1.64,1.61,1.26,0.88,1.10,1.83,2.71,3.10,3.20]
+  Global:[0.49,0.41,0.43,0.45,0.44,0.44,0.45,0.40,0.45,0.41,0.46,0.41,0.50,0.72,0.72,0.93,0.89,0.81,0.63,0.49,0.46,0.43,0.40,0.37,0.35,0.34,0.28,0.23,0.22,0.23,0.21,0.18,0.16,0.16,0.17,0.15,0.15,0.16,0.18,0.18],
+  DACH:  [4.86,6.17,7.32,7.43,6.70,6.38,7.13,7.43,7.27,6.89,6.11,5.28,5.93,6.65,2.07,2.83,16.0,21.1,21.2,19.7,19.0,16.9,16.0,16.5,15.4,14.9,13.7,12.0,9.11,9.06,12.2,13.1,11.9,11.4,12.8,12.5,10.5,11.0,13.4,14.07],
+  FR:    [5.16,5.30,6.12,5.41,5.65,6.42,6.58,6.73,7.10,7.02,5.71,5.20,5.03,5.52,2.88,4.74,29.8,44.9,40.0,33.9,30.6,29.4,27.5,25.2,25.5,25.7,20.3,19.2,20.4,18.2,19.7,21.2,19.8,19.0,17.8,17.0,15.3,14.9,18.2,20.13],
+  US:    [48.1,54.9,10.7,8.16,8.42,7.29,6.40,6.38,6.26,6.70,5.71,4.97,4.91,4.40,2.21,3.59,18.6,29.8,32.0,30.7,29.7,27.5,25.8,25.4,24.7,24.9,22.4,16.5,11.5,12.6,16.2,14.6,14.0,14.4,14.6,15.0,14.8,14.1,14.9,15.74],
+  UK:    [8.78,8.19,7.11,6.09,5.27,5.34,5.56,5.35,6.24,6.44,4.92,4.00,3.16,2.74,1.38,2.37,14.5,25.2,26.1,21.6,19.3,20.7,21.2,19.8,19.4,19.3,18.5,17.5,14.6,13.4,15.0,14.9,13.3,13.0,13.5,13.2,11.9,12.8,15.2,17.67],
+  ANZ:   [4.82,4.66,4.09,4.09,5.38,6.65,7.07,6.60,6.75,7.27,7.32,7.24,5.65,4.27,2.58,4.34,24.7,32.9,30.9,24.8,23.8,24.0,22.0,19.9,20.9,20.9,16.5,13.8,12.1,11.9,12.8,10.8,8.76,8.16,8.99,9.53,9.67,8.70,9.30,10.93],
+  EU:    [3.75,4.72,5.48,4.22,3.56,3.66,4.37,4.13,3.88,4.23,3.89,2.45,2.76,4.52,1.60,2.12,10.3,14.4,15.0,14.0,13.4,18.4,16.6,11.8,11.4,9.93,8.43,8.79,6.11,4.61,6.53,8.13,7.44,7.67,8.22,7.86,6.68,7.10,8.60,8.95],
+  CAN:   [0,0,0.34,1.00,0.64,0.20,0.42,0.44,0.23,0.22,0.53,0.29,0.34,0.55,0.30,0.52,2.55,2.95,3.18,2.73,2.85,2.81,1.77,1.88,1.69,1.11,0.93,0.71,0.48,0.92,1.64,1.61,1.26,0.88,1.10,1.83,2.71,3.10,3.20,3.25]
 };
 const REGIONS=['Global','DACH','FR','US','UK','ANZ','EU','CAN'];
 const LABELS=['🌍 Global','🇩🇪 DACH','🇫🇷 FR','🇺🇸 US','🇬🇧 UK','🇦🇺 ANZ','🇪🇺 EU','🇨🇦 CAN'];
 const REL=[{w:'W52',l:['R5','22.01']},{w:'W6',l:['R6','13.02']},{w:'W11',l:['R6.1','18.03']},{w:'W15',l:['R7','16.04']}];
 
-const relP={id:'relP',afterDraw(chart,_,opts){
+const relPlugin={id:'relPlugin',afterDraw(chart,_,opts){
   if(!opts.r)return;
   const{ctx,chartArea,scales}=chart;
   opts.r.forEach(r=>{
     const idx=W.indexOf(r.w);if(idx<0)return;
     const x=scales.x.getPixelForValue(idx);
-    ctx.save();ctx.beginPath();ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(180,140,50,.35)';ctx.lineWidth=1;
+    ctx.save();ctx.beginPath();ctx.setLineDash([3,4]);ctx.strokeStyle='rgba(140,100,40,.26)';ctx.lineWidth=1;
     ctx.moveTo(x,chartArea.top);ctx.lineTo(x,chartArea.bottom);ctx.stroke();
-    ctx.setLineDash([]);ctx.font='9px "DM Mono",monospace';ctx.fillStyle='rgba(200,170,80,.6)';ctx.textAlign='center';
-    r.l.forEach((t,i)=>ctx.fillText(t,x,chartArea.top+10+i*10));
+    ctx.setLineDash([]);ctx.font='8.5px "DM Mono",monospace';ctx.fillStyle='rgba(160,120,50,.48)';ctx.textAlign='center';
+    r.l.forEach((t,i)=>ctx.fillText(t,x,chartArea.top+9+i*10));
     ctx.restore();
   });
 }};
-Chart.register(relP);
+Chart.register(relPlugin);
 
-const gc='rgba(255,255,255,0.04)',tc='rgba(255,255,255,0.22)';
-const ttBase={backgroundColor:'rgba(10,12,18,.97)',borderColor:'rgba(255,255,255,.08)',borderWidth:1,titleColor:'rgba(255,255,255,.35)',bodyColor:'#b0b8cc',titleFont:{family:'"DM Mono",monospace',size:9},bodyFont:{family:'"DM Mono",monospace',size:10},padding:9};
-const xS={ticks:{color:tc,font:{family:'"DM Mono",monospace',size:8},maxRotation:45,autoSkip:true,maxTicksLimit:20},grid:{color:gc},border:{color:'rgba(255,255,255,.04)'}};
-const yB={ticks:{color:tc,font:{family:'"DM Mono",monospace',size:8}},grid:{color:gc},border:{color:'rgba(255,255,255,.04)'}};
+const gc='rgba(255,255,255,0.03)',tc='rgba(255,255,255,0.18)';
+const ttBase={backgroundColor:'rgba(8,10,16,.97)',borderColor:'rgba(255,255,255,.06)',borderWidth:1,titleColor:'rgba(255,255,255,.26)',bodyColor:'#8a9ab0',titleFont:{family:'"DM Mono",monospace',size:8.5},bodyFont:{family:'"DM Mono",monospace',size:9.5},padding:8};
+const xS={ticks:{color:tc,font:{family:'"DM Mono",monospace',size:9},maxRotation:45,autoSkip:true,maxTicksLimit:20},grid:{color:gc},border:{color:'rgba(255,255,255,.03)'}};
+const yB={ticks:{color:tc,font:{family:'"DM Mono",monospace',size:9}},grid:{color:gc},border:{color:'rgba(255,255,255,.03)'}};
 
-let c1=null,c2=null;
-function build(reg){
-  if(c1)c1.destroy();if(c2)c2.destroy();
-  c1=new Chart(document.getElementById('c1'),{type:'line',data:{labels:W,datasets:[
-    {label:'Contact Rate',data:CR[reg],borderColor:'#4f7ed4',backgroundColor:'rgba(79,126,212,.05)',fill:true,pointRadius:2,pointBackgroundColor:'#4f7ed4',tension:0.3,yAxisID:'y',borderWidth:1.5},
-    {label:'Active TB2s',data:ACT,borderColor:'rgba(192,96,64,.55)',backgroundColor:'transparent',pointRadius:2,pointBackgroundColor:'rgba(192,96,64,.55)',tension:0.3,yAxisID:'y2',borderWidth:1.5}
+let ch1=null,ch2=null;
+function buildCharts(reg){
+  if(ch1)ch1.destroy();if(ch2)ch2.destroy();
+  ch1=new Chart(document.getElementById('c1'),{type:'line',data:{labels:W,datasets:[
+    {label:'Contact Rate',data:CR[reg],borderColor:'#3d6aaa',backgroundColor:'rgba(61,106,170,.04)',fill:true,pointRadius:1.5,pointBackgroundColor:'#3d6aaa',tension:0.3,yAxisID:'y',borderWidth:1.5},
+    {label:'Active TB2s',data:ACT,borderColor:'rgba(160,80,50,.42)',backgroundColor:'transparent',pointRadius:1.5,pointBackgroundColor:'rgba(160,80,50,.42)',tension:0.3,yAxisID:'y2',borderWidth:1.5}
   ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-    plugins:{legend:{display:false},tooltip:{...ttBase,callbacks:{label(c){if(c.dataset.yAxisID==='y')return' Contact Rate: '+c.parsed.y.toFixed(2)+'%';return' Active TB2s: '+c.parsed.y.toLocaleString('de-DE');}}},relP:{r:REL}},
-    scales:{x:xS,y:{...yB,position:'left',ticks:{...yB.ticks,callback:v=>v.toFixed(1)+'%'}},y2:{position:'right',ticks:{color:'rgba(192,96,64,.4)',font:{family:'"DM Mono",monospace',size:8},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v},grid:{display:false},border:{display:false}}}
+    plugins:{legend:{display:false},tooltip:{...ttBase,callbacks:{label(c){if(c.dataset.yAxisID==='y')return' Contact Rate: '+c.parsed.y.toFixed(2)+'%';return' Active TB2s: '+c.parsed.y.toLocaleString('de-DE');}}},relPlugin:{r:REL}},
+    scales:{x:xS,y:{...yB,position:'left',ticks:{...yB.ticks,callback:v=>v.toFixed(1)+'%'}},
+      y2:{position:'right',ticks:{color:'rgba(160,80,50,.32)',font:{family:'"DM Mono",monospace',size:9},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v},grid:{display:false},border:{display:false}}}
   }});
-  c2=new Chart(document.getElementById('c2'),{type:'line',data:{labels:W,datasets:[
-    {label:'Not on rate',data:NON,borderColor:'#4f7ed4',backgroundColor:'rgba(79,126,212,.05)',fill:true,pointRadius:2,pointBackgroundColor:'#4f7ed4',tension:0.3,borderWidth:1.5}
+  ch2=new Chart(document.getElementById('c2'),{type:'line',data:{labels:W,datasets:[
+    {label:'Not on rate',data:NON,borderColor:'#3d6aaa',backgroundColor:'rgba(61,106,170,.04)',fill:true,pointRadius:1.5,pointBackgroundColor:'#3d6aaa',tension:0.3,borderWidth:1.5}
   ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-    plugins:{legend:{display:false},tooltip:{...ttBase,callbacks:{label(c){return' Not turning on: '+c.parsed.y.toFixed(2)+'%';}}},relP:{r:REL}},
+    plugins:{legend:{display:false},tooltip:{...ttBase,callbacks:{label(c){return' Not turning on: '+c.parsed.y.toFixed(2)+'%';}}},relPlugin:{r:REL}},
     scales:{x:xS,y:{...yB,min:0,max:5,ticks:{...yB.ticks,callback:v=>v.toFixed(1)+'%'}}}}
   });
 }
 
-const tb=document.getElementById('tb');
+const tb=document.getElementById('tabbar');
 LABELS.forEach((l,i)=>{
   const b=document.createElement('button');b.className='tab'+(i===0?' active':'');b.textContent=l;
-  b.onclick=()=>{document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));build(REGIONS[i]);};
+  b.onclick=()=>{document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));buildCharts(REGIONS[i]);};
   tb.appendChild(b);
 });
-build('Global');
+buildCharts('Global');
 </script>
+</body>
+</html>
